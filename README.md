@@ -4,13 +4,7 @@ For use in automatically grading and providing feedback for problems in Jupyter 
 
 ## Scoring
 
-To score a student notebook, create a model notebook (see below for format + naming), then use the scoring script:
-
-```python autograder/score_assignment.py [student-notebook.ipynb]```
-
-(When calling this script, provide the local path to the student notebook.)
-
-You can also run:
+To score a student notebook, create a model notebook (see below for format + naming), then run:
 
 ```
 pip install .

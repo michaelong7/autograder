@@ -79,25 +79,25 @@ def score(filename):
         file.write(''.join(working_blocks))
 
     if any(pyta_messages):
-        print("Your code has an error in the following location(s):")
+        print("Your code has an error in the following block(s):")
 
     cleaned_pyta_messages = [re.sub(r'Parsing failed:', '', 
                             re.sub(r'[\[\(][^(]*?[Ll]ine.*?[\d]+.*?[\)\]]', '', message)).strip()
                             for message in pyta_messages]
 
-    # for x, y in zip(cleaned_pyta_messages, failed_blocks):
-    #     if x != "err":
-    #         print(x)
-    #         print(y)
-    #         print("________________________________________________")
-    #     else: # if tokenize fails at parsing
-    #         try:
-    #             with contextlib.redirect_stdout(open('/dev/null', 'w')) as g:
-    #                 exec(y)
-    #         except SyntaxError as e:
-    #             print(re.sub(r'[\[\(][^(]*?[Ll]ine.*?[\d]+.*?[\)\]]', '', str(e)).strip())
-    #             print(y)
-    #         print("________________________________________________")
+    for x, y in zip(cleaned_pyta_messages, failed_blocks):
+        if x != "err":
+            print(x)
+            print(y)
+            print("________________________________________________")
+        else: # if tokenize fails at parsing
+            try:
+                with contextlib.redirect_stdout(open('/dev/null', 'w')) as g:
+                    exec(y)
+            except SyntaxError as e:
+                print(re.sub(r'[\[\(][^(]*?[Ll]ine.*?[\d]+.*?[\)\]]', '', str(e)).strip())
+                print(y)
+            print("________________________________________________")
 
     print('Results:\n')
 
@@ -105,20 +105,22 @@ def score(filename):
         import ASSIGNMENT
     import MODEL
 
+    model_functions = [(k,v) for (k,v) in MODEL.__dict__.items() if k.startswith("model") and not k.endswith("prep")]
     total = 0
     correct_num = 0
 
-    for student_func_name, student_func in ASSIGNMENT.__dict__.items():
-        model_func_name = 'model_' + student_func_name
+    for model_func_name, model_func in model_functions:
+        student_func_name = model_func_name.removeprefix("model_")
         try: 
-            model_func = MODEL.__dict__[model_func_name]
-        except: continue
-        a = model_func(student_func)
+            student_func = ASSIGNMENT.__dict__[student_func_name]
+            a = model_func(student_func)
+        except: 
+            a = "incorrect"
         if a == "correct.":
             correct_num = correct_num + 1
         total = total + 1
         print(f"exercise {student_func_name.upper()}:\n{a}\n")
-        logging.info(f"{log_time}\t{nbfile.with_suffix('').name}\t{student_func_name.upper()}\t{"correct" if a == "correct." else "incorrect"}")
+        logging.info(f"{log_time}\t{nbfile.with_suffix('').name}\t{student_func_name.upper()}\t{'correct' if a == 'correct.' else 'incorrect'}")
     if total != 0:
         print(f"You got {correct_num} exercise(s) correct out of {total} total exercises.")
         print(f"Your score is: {correct_num * 100 / total:.0f}%")
