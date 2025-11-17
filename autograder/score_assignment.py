@@ -115,7 +115,7 @@ def score(filename):
             student_func = ASSIGNMENT.__dict__[student_func_name]
             a = model_func(student_func)
         except: 
-            a = "incorrect"
+            a = "incorrect."
         if a == "correct.":
             correct_num = correct_num + 1
         total = total + 1
